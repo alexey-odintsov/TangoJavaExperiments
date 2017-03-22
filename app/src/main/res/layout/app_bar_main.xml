@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.alekso.tangojavaexperiments.MainActivity">
@@ -20,10 +21,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.opengl.GLSurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <include layout="@layout/content" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <Button
+        android:id="@+id/first_person_button"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/top_down_button"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="60dp"
+        android:paddingRight="5dp"
+        android:text="First" />
+
+    <Button
+        android:id="@+id/top_down_button"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/third_person_button"
+        android:layout_below="@+id/first_person_button"
+        android:layout_marginRight="5dp"
+        android:paddingRight="5dp"
+        android:text="Top" />
+
+    <Button
+        android:id="@+id/third_person_button"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/top_down_button"
+        android:layout_marginRight="5dp"
+        android:paddingRight="5dp"
+        android:text="Third" />
+
+    <Button
+        android:id="@+id/resetmotion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="5dp"
+        android:text="Reset motion" />
+</RelativeLayout>
