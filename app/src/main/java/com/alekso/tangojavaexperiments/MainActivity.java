@@ -34,24 +34,17 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private GLSurfaceView mSurfaceView;
-    private TangoRenderer mRenderer;
-
+//    private GLSurfaceView mSurfaceView;
+//    private TangoRenderer mRenderer;
+    public static Object sharedLock = new Object();
     private Tango mTango;
     private TangoConfig mConfig;
-
-    public static Object sharedLock = new Object();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceView);
-        mSurfaceView.setZOrderOnTop(false);
-        mSurfaceView.setEGLContextClientVersion(2);
-        mRenderer = new TangoRenderer();
-        mSurfaceView.setRenderer(mRenderer);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -137,8 +130,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mSurfaceView.onResume();
-        mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+//        mSurfaceView.onResume();
+//        mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         mTango = new Tango(MainActivity.this, new Runnable() {
             @Override
@@ -169,8 +162,8 @@ public class MainActivity extends AppCompatActivity
         framePair.baseFrame = TangoPoseData.COORDINATE_FRAME_IMU;
         framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_DEVICE;
         device2IMUPose = mTango.getPoseAtTime(0.0, framePair);
-        mRenderer.getModelMatCalculator().SetDevice2IMUMatrix(
-                device2IMUPose.getTranslationAsFloats(), device2IMUPose.getRotationAsFloats());
+//        mRenderer.getModelMatCalculator().SetDevice2IMUMatrix(
+//                device2IMUPose.getTranslationAsFloats(), device2IMUPose.getRotationAsFloats());
 
         // Get color camera to imu matrix.
         TangoPoseData color2IMUPose = new TangoPoseData();
@@ -178,14 +171,14 @@ public class MainActivity extends AppCompatActivity
         framePair.targetFrame = TangoPoseData.COORDINATE_FRAME_CAMERA_COLOR;
         color2IMUPose = mTango.getPoseAtTime(0.0, framePair);
 
-        mRenderer.getModelMatCalculator().SetColorCamera2IMUMatrix(
-                color2IMUPose.getTranslationAsFloats(), color2IMUPose.getRotationAsFloats());
+//        mRenderer.getModelMatCalculator().SetColorCamera2IMUMatrix(
+//                color2IMUPose.getTranslationAsFloats(), color2IMUPose.getRotationAsFloats());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mSurfaceView.onPause();
+//        mSurfaceView.onPause();
 
         synchronized (this) {
             try {
@@ -222,14 +215,14 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "onPoseAvailable(pose: " + pose + ")");
                 synchronized (sharedLock) {
                     float[] translation = pose.getTranslationAsFloats();
-                    if (!mRenderer.isValid()) {
-                        return;
-                    }
-
-                    mRenderer.getTrajectory().updateTrajectory(translation);
-                    mRenderer.getModelMatCalculator().updateModelMatrix(translation,
-                            pose.getRotationAsFloats());
-                    mRenderer.updateViewMatrix();
+//                    if (!mRenderer.isValid()) {
+//                        return;
+//                    }
+//
+//                    mRenderer.getTrajectory().updateTrajectory(translation);
+//                    mRenderer.getModelMatCalculator().updateModelMatrix(translation,
+//                            pose.getRotationAsFloats());
+//                    mRenderer.updateViewMatrix();
                 }
             }
 
@@ -256,22 +249,22 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return mRenderer.onTouchEvent(event);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        return mRenderer.onTouchEvent(event);
+//    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.first_person_button:
-                mRenderer.setFirstPersonView();
+//                mRenderer.setFirstPersonView();
                 break;
             case R.id.top_down_button:
-                mRenderer.setTopDownView();
+//                mRenderer.setTopDownView();
                 break;
             case R.id.third_person_button:
-                mRenderer.setThirdPersonView();
+//                mRenderer.setThirdPersonView();
                 break;
             case R.id.resetmotion:
                 motionReset();
