@@ -1,22 +1,19 @@
 package com.alekso.tangojavaexperiments;
 
-import android.opengl.GLSurfaceView;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 
+import com.alekso.tangojavaexperiments.databinding.ActivityMainBinding;
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.TangoConfig;
 import com.google.atap.tangoservice.TangoCoordinateFramePair;
@@ -34,23 +31,19 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-//    private GLSurfaceView mSurfaceView;
-//    private TangoRenderer mRenderer;
     public static Object sharedLock = new Object();
+    private ActivityMainBinding mView;
     private Tango mTango;
     private TangoConfig mConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mView = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
+        setSupportActionBar(mView.appBar.toolbar);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mView.appBar.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -58,29 +51,26 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
+                this, mView.drawerLayout, mView.appBar.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mView.drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mView.navView.setNavigationItemSelectedListener(this);
 
         // Buttons for selecting camera view and Set up button click listeners
-        findViewById(R.id.first_person_button).setOnClickListener(this);
-        findViewById(R.id.third_person_button).setOnClickListener(this);
-        findViewById(R.id.top_down_button).setOnClickListener(this);
+        mView.appBar.content.firstPersonButton.setOnClickListener(this);
+        mView.appBar.content.thirdPersonButton.setOnClickListener(this);
+        mView.appBar.content.topDownButton.setOnClickListener(this);
 
         // Button to reset motion tracking
-        findViewById(R.id.resetmotion).setOnClickListener(this);
+        mView.appBar.content.resetMotion.setOnClickListener(this);
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (mView.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mView.drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
@@ -130,8 +120,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-//        mSurfaceView.onResume();
-//        mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         mTango = new Tango(MainActivity.this, new Runnable() {
             @Override
@@ -178,7 +166,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-//        mSurfaceView.onPause();
 
         synchronized (this) {
             try {
@@ -249,11 +236,6 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        return mRenderer.onTouchEvent(event);
-//    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -266,7 +248,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.third_person_button:
 //                mRenderer.setThirdPersonView();
                 break;
-            case R.id.resetmotion:
+            case R.id.reset_motion:
                 motionReset();
                 break;
             default:
