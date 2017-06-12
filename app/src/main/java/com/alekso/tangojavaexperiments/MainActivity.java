@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     public static Object sharedLock = new Object();
     private ActivityMainBinding mView;
+    private MainFragment mGLFragment;
     private Tango mTango;
     private TangoConfig mConfig;
 
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity
 
         setSupportActionBar(mView.appBar.toolbar);
 
+        mGLFragment = (MainFragment) getFragmentManager().findFragmentById(R.id.main_fragment);
         mView.appBar.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
