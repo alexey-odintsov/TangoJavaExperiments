@@ -2,6 +2,7 @@ package com.alekso.tangojavaexperiments;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -24,18 +25,30 @@ import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPointCloudData;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
+import com.jme3.math.Quaternion;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final long LOG_UPDATE_RATE = 500; // update every 500ms
     public static Object sharedLock = new Object();
+    private Handler mHandler = new Handler();
     private ActivityMainBinding mView;
     private MainFragment mGLFragment;
     private Tango mTango;
     private TangoConfig mConfig;
+    /**
+     * Device rotation
+     */
+    private float[] mRotation = new float[]{0f, 0f, 0f, 0f};
+    /**
+     * Device position
+     */
+    private float[] mPosition = new float[]{0f, 0f, 0f};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +78,6 @@ public class MainActivity extends AppCompatActivity
         mView.appBar.content.thirdPersonButton.setOnClickListener(this);
         mView.appBar.content.topDownButton.setOnClickListener(this);
 
-        // Button to reset motion tracking
-        mView.appBar.content.resetMotion.setOnClickListener(this);
     }
 
     @Override
@@ -87,7 +98,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.reset_motion) {
+            motionReset();
             return true;
         }
 
@@ -154,6 +166,9 @@ public class MainActivity extends AppCompatActivity
         device2IMUPose = mTango.getPoseAtTime(0.0, framePair);
 //        mRenderer.getModelMatCalculator().SetDevice2IMUMatrix(
 //                device2IMUPose.getTranslationAsFloats(), device2IMUPose.getRotationAsFloats());
+//        float[] rotation = device2IMUPose.getRotationAsFloats();
+//        Quaternion rot = new Quaternion();
+        //mGLFragment.getJmeApplication().getCamera().setRotation(rot);
 
         // Get color camera to imu matrix.
         TangoPoseData color2IMUPose = new TangoPoseData();
@@ -197,13 +212,34 @@ public class MainActivity extends AppCompatActivity
                 TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE,
                 TangoPoseData.COORDINATE_FRAME_DEVICE));
 
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder sb = new StringBuilder();
+
+                sb.append(String.format(Locale.US, "Position: %5.2f x %5.2f x %5.2f", mPosition[0], mPosition[1], mPosition[2]));
+                sb.append(String.format(Locale.US, "\nRotation: %5.2f x %5.2f x %5.2f", mRotation[0], mRotation[1], mRotation[2]));
+
+                mView.appBar.content.tvLog.setText(sb.toString());
+                mHandler.postDelayed(this, LOG_UPDATE_RATE);
+            }
+        };
+        mHandler.post(runnable);
+
+
         // Listen for new Tango data.
         mTango.connectListener(framePairs, new Tango.TangoUpdateCallback() {
             @Override
             public void onPoseAvailable(TangoPoseData pose) {
-                Log.d(TAG, "onPoseAvailable(pose: " + pose + ")");
+                //Log.d(TAG, "onPoseAvailable(pose: " + pose + ")");
                 synchronized (sharedLock) {
-                    float[] translation = pose.getTranslationAsFloats();
+                    mRotation = pose.getRotationAsFloats();
+                    mPosition = pose.getTranslationAsFloats();
+//                    Quaternion rot = new Quaternion(mRotation[2], mRotation[1], mRotation[2], mRotation[3]);
+//                    Vector3f pos = new Vector3f(translation[0], translation[1], translation[2]);
+
+
+                    //Log.d(TAG, "Pose: " + rot);
 //                    if (!mRenderer.isValid()) {
 //                        return;
 //                    }
@@ -212,28 +248,33 @@ public class MainActivity extends AppCompatActivity
 //                    mRenderer.getModelMatCalculator().updateModelMatrix(translation,
 //                            pose.getRotationAsFloats());
 //                    mRenderer.updateViewMatrix();
+
+                    //mGLFragment.getJmeApplication().getCamera().getRotation().set(mRotation[0], mRotation[1], mRotation[2], mRotation[3]);
+
+                    //mGLFragment.getJmeApplication().getCamera().setRotation(rot);
+                    //mGLFragment.getJmeApplication().getCamera().setLocation(pos);
                 }
             }
 
             @Override
             public void onXyzIjAvailable(TangoXyzIjData xyzIj) {
-                Log.d(TAG, "onXyzIjAvailable(xyzIj: " + xyzIj + ")");
+                //Log.d(TAG, "onXyzIjAvailable(xyzIj: " + xyzIj + ")");
             }
 
             @Override
             public void onFrameAvailable(int cameraId) {
                 super.onFrameAvailable(cameraId);
-                Log.d(TAG, "onFrameAvailable(cameraId: " + cameraId + ")");
+                //Log.d(TAG, "onFrameAvailable(cameraId: " + cameraId + ")");
             }
 
             @Override
             public void onTangoEvent(TangoEvent event) {
-                Log.d(TAG, "onTangoEvent(" + event.eventKey + " - " + event.eventValue + ")");
+                //Log.d(TAG, "onTangoEvent(" + event.eventKey + " - " + event.eventValue + ")");
             }
 
             @Override
             public void onPointCloudAvailable(TangoPointCloudData pointCloud) {
-                Log.d(TAG, "onPointCloudAvailable(pointCloud: " + pointCloud + ")");
+                //Log.d(TAG, "onPointCloudAvailable(pointCloud: " + pointCloud + ")");
             }
         });
     }
@@ -242,16 +283,10 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.first_person_button:
-//                mRenderer.setFirstPersonView();
                 break;
             case R.id.top_down_button:
-//                mRenderer.setTopDownView();
                 break;
             case R.id.third_person_button:
-//                mRenderer.setThirdPersonView();
-                break;
-            case R.id.reset_motion:
-                motionReset();
                 break;
             default:
                 Log.w(TAG, "Unknown button click");

@@ -17,5 +17,7 @@ public class MainFragment extends AndroidHarnessFragment {
 
         // Enable MouseEvents being generated from TouchEvents (default = true)
         mouseEventsEnabled = true;
+
+
     }
 }
