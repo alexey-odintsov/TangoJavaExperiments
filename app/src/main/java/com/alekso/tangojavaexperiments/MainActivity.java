@@ -25,7 +25,6 @@ import com.google.atap.tangoservice.TangoOutOfDateException;
 import com.google.atap.tangoservice.TangoPointCloudData;
 import com.google.atap.tangoservice.TangoPoseData;
 import com.google.atap.tangoservice.TangoXyzIjData;
-import com.jme3.math.Quaternion;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -41,14 +40,6 @@ public class MainActivity extends AppCompatActivity
     private MainFragment mGLFragment;
     private Tango mTango;
     private TangoConfig mConfig;
-    /**
-     * Device rotation
-     */
-    private float[] mRotation = new float[]{0f, 0f, 0f, 0f};
-    /**
-     * Device position
-     */
-    private float[] mPosition = new float[]{0f, 0f, 0f};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,8 +208,8 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 StringBuilder sb = new StringBuilder();
 
-                sb.append(String.format(Locale.US, "Position: %5.2f x %5.2f x %5.2f", mPosition[0], mPosition[1], mPosition[2]));
-                sb.append(String.format(Locale.US, "\nRotation: %5.2f x %5.2f x %5.2f", mRotation[0], mRotation[1], mRotation[2]));
+                sb.append(String.format(Locale.US, "Position: %5.2f x %5.2f x %5.2f", App.mPosition[0], App.mPosition[1], App.mPosition[2]));
+                sb.append(String.format(Locale.US, "\nRotation: %5.2f x %5.2f x %5.2f", App.mRotation[0], App.mRotation[1], App.mRotation[2]));
 
                 mView.appBar.content.tvLog.setText(sb.toString());
                 mHandler.postDelayed(this, LOG_UPDATE_RATE);
@@ -233,8 +224,10 @@ public class MainActivity extends AppCompatActivity
             public void onPoseAvailable(TangoPoseData pose) {
                 //Log.d(TAG, "onPoseAvailable(pose: " + pose + ")");
                 synchronized (sharedLock) {
-                    mRotation = pose.getRotationAsFloats();
-                    mPosition = pose.getTranslationAsFloats();
+                    App.mRotation = pose.getRotationAsFloats();
+                    App.mPosition = pose.getTranslationAsFloats();
+                    //mGLFragment.updateCamera(App.mPosition);
+
 //                    Quaternion rot = new Quaternion(mRotation[2], mRotation[1], mRotation[2], mRotation[3]);
 //                    Vector3f pos = new Vector3f(translation[0], translation[1], translation[2]);
 
